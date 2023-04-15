@@ -100,3 +100,8 @@ When you want to use this code in production, please modify the configuration be
   ```
   shell_script = 'mosquitto_pub -h test.mosquitto.org -t "{your_new_topic}/' + send_addr + '" -m "'  + tangle_msg_id + '"'
   ```
+- IOTA Hornet Node
+  Change url from chrysalis devnet to hornet url that connect to mainnet in `src/prop/url.py`
+  ```
+  chrysalis_url = '{your_mainnet_hornet_address}'
+  ```
