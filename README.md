@@ -9,6 +9,13 @@ Simplify the way to upload to IOTA Tangle via MQTT.
 <!-- End of Title -->
 
 <br>
+<span align = "center">
+   
+![Logo](https://github.com/SuryaAssistant/iota-raspberrypi-gateway/blob/main/new_iota.png)
+
+</span>
+<br>
+
 
 This method used to simplify other IoT node such as ESP8266 and ESP32 or the others. Just send to this gateway via MQTT and... voila... it is on Tangle.
 As default, this code work on `Chrysalis Devnet`. If you want to use in production, please install hornet or collaborate with someone who has a hornet API to Chrysalis Mainnet.
