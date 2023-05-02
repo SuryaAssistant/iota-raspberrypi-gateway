@@ -1,10 +1,11 @@
+from config.config import *
 import paho.mqtt.client as mqtt
 import socket
 import os
 
 
-MQTT_SERVER = "test.mosquitto.org"
-MQTT_PATH = "surya_gateway/submit"
+MQTT_SERVER = mqtt_addr
+MQTT_PATH = gateway_name + '/' + submit_subaddr
 
 def on_connect(client, userdata, flags, rc):
 	print("=====================================================")
@@ -16,7 +17,6 @@ def on_connect(client, userdata, flags, rc):
     
 def on_message(client, userdata, msg):
     payload = (msg.payload).decode('UTF-8')
-    print(payload)
     f = open("temp.txt", "a")
     f.write(payload + '\n')
     f.close()
