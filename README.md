@@ -51,7 +51,7 @@ allow_anonymous true
 ```
 git clone https://github.com/SuryaAssistant/iota-raspberrypi-gateway
 ```
-- Move to `src` folder and run the program
+- Go to `src` folder and run the program
 ```
 cd iota-raspberrypi-gateway/src
 python3 main.py
@@ -66,49 +66,65 @@ Congratulations...
   If you don't care about to know the `message_id`, just skip this step.
   
   - On linux
-  ```
-  mosquitto -h test.mosquitto.org -t "surya_gateway/{yourspecialtopic}"
-  ```
+    - Syntax
+    ```
+    mosquitto_sub -h test.mosquitto.org -t "surya_gateway/{yourspecialtopic}"
+    ```
+    - Example :
+    ```
+    mosquitto_sub -h test.mosquitto.org -t "surya_gateway/mytopic"
+    ```
   
   - On Windows
-  ```
-  cd C:\Program Files\mosquitto
-  mosquitto -h test.mosquitto.org -t "surya_gateway/{yourspecialtopic}"
-  ```
-  
+    - Syntax
+    ```
+    cd C:\Program Files\mosquitto
+    mosquitto_sub -h test.mosquitto.org -t "surya_gateway/{yourspecialtopic}"
+    ```
+    - Example : 
+    ```
+    mosquitto_sub -h test.mosquitto.org -t "surya_gateway/mytopic"
+    ```
+
 - For upload process, run the step below
   - On Linux
-  ```
-  mosquitto -h test.mosquitto.org -t "surya_gateway/submit" -m "{your_data}/{yourspecialtopic}"
-  ```
+    - Syntax
+    ```
+    mosquitto_pub -h test.mosquitto.org -t "surya_gateway/submit" -m "{your_data}/{yourspecialtopic}"
+    ```
+    - Example :
+    ```
+    mosquitto_pub -h test.mosquitto.org -t "surya_gateway/submit" -m '"node":"node1","encrypt_data":"xasdjkafadhdioasid1"/mytopic'
+    ```
 
   - On Windows
-  ```
-  cd C:\Program Files\mosquitto
-  mosquitto -h test.mosquitto.org -t "surya_gateway/submit" -m "{your_data}/{yourspecialtopic}"
-  ```
-  
+    - Syntax
+    ```
+    cd C:\Program Files\mosquitto
+    mosquitto_pub -h test.mosquitto.org -t "surya_gateway/submit" -m "{your_data}/{yourspecialtopic}"
+    ```
+    - Example :
+    ```
+    mosquitto_pub -h test.mosquitto.org -t "surya_gateway/submit" -m '"node":"node1","encrypt_data":"xasdjkafadhdioasid1"/mytopic'
+    ```
+
   - On ESP based microcontroller, the topic to publish is `surya_gateway/submit` and message format used is `{your_data}/{yourspecialtopic}`.
   
 ## Production
-When you want to use this code in production, please modify the configuration below.
+When you want to use this code in production, please modify the configuration in `config/config.py`.
 - MQTT Broker
 
-  Since this example using free to use MQTT Broker that have some limitations, please change `src/server-mqtt.py`
+  Since this example using free to use MQTT Broker that have some limitations, please change `config.py`
   ```
-  MQTT_SERVER = "{your_premium_broker}"
-  MQTT_PATH = "{your_msg_submission_topic}"
+  mqtt_addr = "{your_premium_broker}"
+  gateway_name = "{name_for_your_gateway}"
+  submit_subaddr = "{submit_topic}"
   ```
   
-  Also, change the message index for IOTA Tangle and topic to receive message_id in `src/main.py`
-  ```
-  upload(client_data, "{your_index}", "{your_node_name}")
-  ```
-  ```
-  shell_script = 'mosquitto_pub -h test.mosquitto.org -t "{your_new_topic}/' + send_addr + '" -m "'  + tangle_msg_id + '"'
-  ```
+  The result will be `{gateway_name}/{submit_subaddr}` for gateway submit topic
+  
 - IOTA Hornet Node
-  Change url from chrysalis devnet to hornet url that connect to mainnet in `src/prop/url.py`
+  Change url from chrysalis devnet to hornet url that connect to mainnet in `config.py`
   ```
   chrysalis_url = '{your_mainnet_hornet_address}'
   ```
