@@ -12,7 +12,7 @@ tangle_msg_id = ""
 
 def upload(sensor_data, index_msg):
     timestamp = str(int(time.time()))
-    payload = '{"timestamp":' + timestamp + ',"uuid":"' + str(hex(uuid.getnode())) + '","data":{' + sensor_data + '}}'
+    payload = '{"timestamp":' + timestamp + ',"uuid":"' + str(hex(uuid.getnode())) + '","data":' + sensor_data + '}'
     payload_int = payload.encode("utf8")
     print(payload)
 
@@ -46,8 +46,9 @@ if __name__ == "__main__":
                 data_to_send = first_line.split('/')
                 
                 if len(data_to_send) == 2:
-                    client_data = data_to_send[0]
+                    client_data = data_to_send[0].replace("'", '"')
                     send_addr = data_to_send[1]
+                    send_addr = send_addr.strip("'")
                     
                     upload(client_data, gateway_name)
                     

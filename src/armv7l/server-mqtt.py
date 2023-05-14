@@ -16,6 +16,7 @@ def on_connect(client, userdata, flags, rc):
 	client.subscribe(MQTT_PATH)
     
 def on_message(client, userdata, msg):
+    print(msg.payload)
     payload = (msg.payload).decode('UTF-8')
     f = open("temp.txt", "a")
     f.write(payload + '\n')
