@@ -94,7 +94,7 @@ Congratulations...
     ```
     - Example :
     ```
-    mosquitto_pub -h test.mosquitto.org -t "surya_gateway/submit" -m "'node':'node1','encrypt_data':'xasdjkafadhdioasid1'/mytopic"
+    mosquitto_pub -h test.mosquitto.org -t "surya_gateway/submit" -m "{'node':'node1','encrypt_data':'xasdjkafadhdioasid1'}/mytopic"
     ```
 
   - On Windows
@@ -105,7 +105,7 @@ Congratulations...
     ```
     - Example :
     ```
-    mosquitto_pub -h test.mosquitto.org -t "surya_gateway/submit" -m "'node':'node1','encrypt_data':'xasdjkafadhdioasid1'/mytopic"
+    mosquitto_pub -h test.mosquitto.org -t "surya_gateway/submit" -m "{'node':'node1','encrypt_data':'xasdjkafadhdioasid1'}/mytopic"
     ```
 
   - On ESP based microcontroller, the topic to publish is `surya_gateway/submit` and message format used is `{your_data}/{yourspecialtopic}`.
