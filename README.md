@@ -46,6 +46,23 @@ listener 1883
 allow_anonymous true
 ```
 
+## Turn Off Retained Message
+When start subscribing MQTT topic, it will fetch latest message in topic. This is called retained message. If retained message is on, gateway will create new IOTA submission every time gateway is started. This will create duplicate data. To prevent gateway from this action, please follow steps below.
+
+- Open terminal and type
+```
+sudo nano /etc/mosquitto/mosquitto.conf
+```
+- Change value of `persistance` from true to false
+```
+persistence false
+```
+- Stop mosquitto and start again
+```
+sudo service mosquitto stop
+sudo service mosquitto start
+```
+
 ## Clone Repository
 - Open terminal and 
 ```
