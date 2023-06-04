@@ -3,7 +3,7 @@ import paho.mqtt.client as mqtt
 import socket
 import os
 
-
+lastMessage = ""
 MQTT_SERVER = mqtt_addr
 MQTT_PATH = gateway_name + '/' + submit_subaddr
 
@@ -16,7 +16,7 @@ def on_connect(client, userdata, flags, rc):
 	client.subscribe(MQTT_PATH)
     
 def on_message(client, userdata, msg):
-    print(msg.payload)
+    # print(msg.payload)
     payload = (msg.payload).decode('UTF-8')
     f = open("temp.txt", "a")
     f.write(payload + '\n')

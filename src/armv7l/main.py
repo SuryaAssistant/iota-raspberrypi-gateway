@@ -14,12 +14,14 @@ def upload(sensor_data, index_msg):
     timestamp = str(int(time.time()))
     payload = '{"timestamp":' + timestamp + ',"uuid":"' + str(hex(uuid.getnode())) + '","data":' + sensor_data + '}'
     payload_int = payload.encode("utf8")
+    print("*****UPLOAD*****")
     print(payload)
 
     # upload to tangle
     tangle_return = client.message(index=index_msg, data=payload_int)
     global tangle_msg_id
     tangle_msg_id = tangle_return['message_id']
+    print("*****RECEIVE*****")
     print(tangle_return)        
 
 if __name__ == "__main__":
@@ -28,6 +30,8 @@ if __name__ == "__main__":
     print(client.get_info())
     
     #run mqtt
+    #stop previous sesion
+    os.system('pkill -f server-mqtt.py')
     subprocess.Popen(["python3", "server-mqtt.py"])
     
     while True:
@@ -53,6 +57,7 @@ if __name__ == "__main__":
                     upload(client_data, gateway_name)
                     
                     # send msg id via mqtt
+                    print("*****FORWARD*****")
                     shell_script = 'mosquitto_pub -h test.mosquitto.org -t "' + gateway_name + '/' + send_addr + '" -m "'  + tangle_msg_id + '"'
                     print(shell_script)
                     os.system(shell_script)
