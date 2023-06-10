@@ -105,7 +105,7 @@ When you start the program from terminal, it will show you a `gateway id`.
 
   - On ESP based microcontroller, the topic to publish is `0xb827eba5f9f6/submit` and message format used is `data/{<your_data>}/<your_return_topic>`.
 
-Other feature are following [MQTT Message Syntax section](https://github.com/SuryaAssistant/iota-raspberrypi-gateway/tree/develop#mqtt-message-syntax).
+Other features are following [MQTT Message Syntax section](https://github.com/SuryaAssistant/iota-raspberrypi-gateway/tree/develop#mqtt-message-syntax).
 
 
 ## MQTT Message Syntax
