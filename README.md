@@ -119,6 +119,33 @@ Other features are following [MQTT Message Syntax section](https://github.com/Su
 | Get data of message (only message that published via the gateway itself. If not from the gateway, it will return `Not Valid`) | `payload_valid/your_msg_id/<your_return_topic>` |  |
 
 
+## Digital Signature for Data Integrity
+This project used `secp256k1` elliptic curve to generate private key and public key. We are using python [starkbank-ecdsa](https://github.com/starkbank/ecdsa-python) library to generate and validate digital signature for the data. When you run the main.py for the first time, it will generate private key automatically and store the private key. As long as not re-installed, private key will still remain there.
+
+![Logo](./img/signature.png)
+
+The data that signatured is in yellow box. The result is in base64 format signature.
+Format to validate the signature is defined below
+
+**Data** : `"message":{"timestamp":1686382764,"uuid":"0xb827eba5f9f6","data":{"node":"esp32-client-78:21:84:88:63:10","nodeTimestamp":1686382764,"temperature":40.60,"humidity":43.00}}`
+<br>
+Data is **without** whitespace
+
+
+**Public Key (compressed)** : `02fc8d163ee74b6e972bcc94481d0006f13c8e20896087fbfbda3ebc326ce2269b`
+
+**Public Key PEM Format** :
+```
+-----BEGIN PUBLIC KEY-----
+MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE/I0WPudLbpcrzJRIHQAG8TyOIIlgh/v7
+2j68MmziJpt+3/KrkvZ8CecdV53OXlOLNBRfU7ZtKbRSLOZQPAsBoA==
+-----END PUBLIC KEY-----
+```
+
+**Signature (base64)** : `MEUCIQDYFt7gzj3iXOSk1HcN9SW1pNr/js+oWePcD8sVb0VtYAIgdvC+x5jcjB2leSp51p+81A/lhpB3oDMg7634GpPGBUY=`
+
+For prooving, you can go [here](https://8gwifi.org/ecsignverify.jsp)
+
 ## Production
 When you want to use this code in production, please modify the configuration in `config/config.py`.
 - MQTT Broker
