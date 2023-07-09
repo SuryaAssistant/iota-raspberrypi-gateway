@@ -1,1 +1,3 @@
 ./sec/armv7l/.ecc
+./src/armv7l/.ecc
+./src/armv7l/.ecc/privateKey.pem
