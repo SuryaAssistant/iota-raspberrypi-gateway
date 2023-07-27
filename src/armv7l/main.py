@@ -19,7 +19,7 @@ from config.config import *
 import iota_client
 
 # ECC Digital Signature Properties
-from ellipticcurve import Ecdsa, PrivateKey, Signature
+from ellipticcurve import Ecdsa, PrivateKey, PublicKey, Signature
 from ellipticcurve.utils.file import File
 
 # Other Properties
@@ -38,11 +38,11 @@ tangle_msg_id = ""
 # - input_data : Series of data to be uploaded
 # - index_msg  : tag index in IOTA Tangle. For easy search by tag index
 #=======================================================================
-def upload(sensor_data, index_msg):
+def upload(data, index_msg):
     timestamp = str(int(time.time()))
-    encoded_data = sensor_data.encode()
+    encoded_data = data.encode()
     message = ('"message":' + '{"timestamp":' + timestamp + 
-        ',"data":' + sensor_data + '}')
+        ',"data":' + data + '}')
         
     # Read private key for signature
     privateKey =  PrivateKey.fromPem(File.read(".ecc/privateKey.pem"))
@@ -50,11 +50,10 @@ def upload(sensor_data, index_msg):
     publicKey = privateKey.publicKey()
     # Create Signature
     signature = Ecdsa.sign(message, privateKey).toBase64()
-    
+    # Create JSON like format
     payload = ('{' + message + 
         ',"publicKey":"' + publicKey.toCompressed() + 
         '","signature":"' + signature + '"}')
-                
     payload_int = payload.encode("utf8")
 
     # upload to tangle
@@ -66,6 +65,7 @@ def upload(sensor_data, index_msg):
 # Function to relay data from IOTA Tangle to Subscriber via MQTT
 # Parameter:
 # - msg : message from IOTA Tangle
+# - send_topic : client subscribed topic
 #=======================================================================
 def send_mqtt(msg, send_topic):
     shell_script = ('mosquitto_pub -h ' + mqtt_addr + ' -t "' + 
@@ -108,6 +108,16 @@ def ECDSA_begin():
 # - return_topic : topic used to send MQTT
 #=======================================================================
 def do_command(command, parameter_value, return_topic, set_tag=gateway_name):
+    # convert compressed public key to PEM format
+    if command == 'convert_to_pem':
+        try :
+            compressedPublicKey = parameter_value
+            convert_publicKey = PublicKey.fromCompressed(compressedPublicKey)
+            publicKey_pem = convert_publicKey.toPem()
+            send_mqtt(publicKey_pem, return_topic)
+        except ValueError :
+            send_mqtt("Error to convert compressed public key to PEM format", return_topic)
+            
     # get data section of a message
     if command == 'data':
         try :
@@ -120,7 +130,6 @@ def do_command(command, parameter_value, return_topic, set_tag=gateway_name):
     # Upload data with specified tag index
     elif command == 'data_special':
         try :
-            print("Upload to Tangle")
             parameter_value = parameter_value.replace("'", '"')
             upload(parameter_value, set_tag)
             send_mqtt(tangle_msg_id, return_topic)
@@ -154,12 +163,13 @@ def do_command(command, parameter_value, return_topic, set_tag=gateway_name):
     # get list of message in tag index
     elif command == 'tag_msg':
         try :
+            # get list of 
             msg_id_list= client.get_message_index(parameter_value)
             msg_count = len(msg_id_list)
             return_data = "["
             
+            # get payload for every message ID
             for i in range(msg_count):
-                # get the payload section
                 full_data = client.get_message_data(msg_id_list[i]) 
                 payload_byte = full_data["payload"]["indexation"][0]["data"]
                 msg=''
@@ -173,7 +183,6 @@ def do_command(command, parameter_value, return_topic, set_tag=gateway_name):
             return_data = return_data.replace('"', "'")
         except ValueError :
             return_data = "Tag not found"
-            
             
         send_mqtt(return_data, return_topic)
         
@@ -194,21 +203,27 @@ def do_command(command, parameter_value, return_topic, set_tag=gateway_name):
     # Only valid message from this gateway only
     elif command == 'payload_valid':
         try : 
+            # get the payload section
             full_data = client.get_message_data(parameter_value) 
             payload_byte = full_data["payload"]["indexation"][0]["data"]
             full_message=''
             for x in range(len(payload_byte)):
                 full_message += chr(payload_byte[x]) 
             
+            # extract message
             msg_start_index = full_message.find("message") - 1
             msg_end_index = full_message.find("publicKey") - 2
             message = full_message[msg_start_index:msg_end_index]
             
+            # get signature
             data_json = json.loads(full_message)
             signature = data_json["signature"]
 
+            # get this gateway publicKey
             privateKey =  PrivateKey.fromPem(File.read(".ecc/privateKey.pem"))
             publicKey = privateKey.publicKey()
+            
+            # ECDSA verifivcation
             signatureToVerify = Signature.fromBase64(signature)
             if Ecdsa.verify(message, signatureToVerify, publicKey):
                 return_data = message.replace('"', "'")
