@@ -109,15 +109,17 @@ Other features are following [MQTT Message Syntax section](https://github.com/Su
 
 
 ## MQTT Message Syntax
-|Feature|Syntax|Example|
-|---|---|---|
-| Upload data to IOTA Tangle | `data/{<your_data>}/<your_return_topic>`| `mosquitto_pub -h test.mosquitto.org -t "0xb827eba5f9f6/submit" -m "data/{"data":12}/myTopic"` |
-| Get list of message ID in IOTA Tangle Index | `tag/<your_tag>/<your_return_topic>` | `mosquitto_pub -h test.mosquitto.org -t "0xb827eba5f9f6/submit" -m "tag/0xb827eba5f9f6/myTopic"` |
-| Get full data of message (include indexation, milestone, etc) | `msg_data/<your_msg_id>/<your_return_topic>` |  |
-| Get full metadata of message | `msg_metadata/<your_msg_id>/<your_return_topic>` |  |
-| Get data of message (message, signature and uploader public key) | `payload/<your_msg_id>/<your_return_topic>` |  |
-| Get data of message (only message that published via the gateway itself. If not from the gateway, it will return `Not Valid`) | `payload_valid/your_msg_id/<your_return_topic>` |  |
-
+|Feature|Syntax|
+|---|---|
+| Upload data to IOTA Tangle | `data/{<data>}/<return_topic>`|
+| Upload data to IOTA Tangle with specific tag index | `data_special/<specified_tag>/{<data>}/<return_topic>`|
+| Get list of message ID in IOTA Tangle Index | `tag/<tag_index>/<return_topic>` |
+| Get full data of message (include indexation, milestone, etc) | `msg_data/<msg_id>/<return_topic>` |
+| Get full metadata of message | `msg_metadata/<msg_id>/<return_topic>` |
+| Get all message data from all message ID in same tag index | `tag_msg/<tag_index>/<return_topic>` |
+| Get data of message (message, signature and uploader public key) | `payload/<msg_id>/<return_topic>` |
+| Get data of message (only message that published via the gateway itself. If not from the gateway, it will return `Not Valid`) | `payload_valid/<msg_id>/<return_topic>` |
+| Convert input compressed public key to PEM format | `convert_to_pem/<compressed_public_key>/<return_topic>` |
 
 ## Digital Signature for Data Integrity
 This project used `secp256k1` elliptic curve to generate private key and public key. We are using python [starkbank-ecdsa](https://github.com/starkbank/ecdsa-python) library to generate and validate digital signature for the data. When you run the main.py for the first time, it will generate private key automatically and store the private key. As long as not re-installed, private key will still remain there.
