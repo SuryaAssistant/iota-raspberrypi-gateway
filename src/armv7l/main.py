@@ -42,8 +42,7 @@ def upload(sensor_data, index_msg):
     timestamp = str(int(time.time()))
     encoded_data = sensor_data.encode()
     message = ('"message":' + '{"timestamp":' + timestamp + 
-        ',"uuid":"' + gateway_name + 
-        '","data":' + sensor_data + '}')
+        ',"data":' + sensor_data + '}')
         
     # Read private key for signature
     privateKey =  PrivateKey.fromPem(File.read(".ecc/privateKey.pem"))
@@ -108,12 +107,22 @@ def ECDSA_begin():
 # - parameter_value : value to input in command
 # - return_topic : topic used to send MQTT
 #=======================================================================
-def do_command(command, parameter_value, return_topic):
+def do_command(command, parameter_value, return_topic, set_tag=gateway_name):
     # get data section of a message
     if command == 'data':
         try :
             parameter_value = parameter_value.replace("'", '"')
             upload(parameter_value, gateway_name)
+            send_mqtt(tangle_msg_id, return_topic)
+        except ValueError :
+            send_mqtt("Error to upload to Tangle", return_topic)
+            
+    # Upload data with specified tag index
+    elif command == 'data_special':
+        try :
+            print("Upload to Tangle")
+            parameter_value = parameter_value.replace("'", '"')
+            upload(parameter_value, set_tag)
             send_mqtt(tangle_msg_id, return_topic)
         except ValueError :
             send_mqtt("Error to upload to Tangle", return_topic)
@@ -141,7 +150,33 @@ def do_command(command, parameter_value, return_topic):
         except ValueError:
             return_data = "Message ID not found"
         send_mqtt(return_data, return_topic)
-
+        
+    # get list of message in tag index
+    elif command == 'tag_msg':
+        try :
+            msg_id_list= client.get_message_index(parameter_value)
+            msg_count = len(msg_id_list)
+            return_data = "["
+            
+            for i in range(msg_count):
+                # get the payload section
+                full_data = client.get_message_data(msg_id_list[i]) 
+                payload_byte = full_data["payload"]["indexation"][0]["data"]
+                msg=''
+                for x in range(len(payload_byte)):
+                    msg += chr(payload_byte[x])
+                return_data += "[" + msg + "]"
+                if i < msg_count-1:
+                    return_data += ","
+            
+            return_data += "]"
+            return_data = return_data.replace('"', "'")
+        except ValueError :
+            return_data = "Tag not found"
+            
+            
+        send_mqtt(return_data, return_topic)
+        
     # Only payload message from IOTA Tangle
     elif command == 'payload':
         try :
@@ -236,12 +271,22 @@ if __name__ == "__main__":
         
         parsing_data = answer_line.split('/')
         
-        if len(parsing_data) != 3:
+        if len(parsing_data) != 3 and len(parsing_data) != 4:
             continue
-            
-        input_command = parsing_data[0]
-        input_parameter_value = parsing_data[1]
-        topic = parsing_data[2].strip("'")
         
+        # Three command style
+        if len(parsing_data) == 3:
+            input_command = parsing_data[0]
+            input_parameter_value = parsing_data[1]
+            topic = parsing_data[2].strip("'")
+            specified_tag = gateway_name
+
+        # Four command style
+        if len(parsing_data) == 4:
+            input_command = parsing_data[0]
+            specified_tag = parsing_data[1]
+            input_parameter_value = parsing_data[2]
+            topic = parsing_data[3].strip("'")
+                    
         # Do message based on it command function
-        do_command(input_command, input_parameter_value, topic)
+        do_command(input_command, input_parameter_value, topic, specified_tag)
