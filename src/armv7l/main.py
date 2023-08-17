@@ -175,7 +175,7 @@ def do_command(command, parameter_value, return_topic, set_tag=gateway_name):
                 msg=''
                 for x in range(len(payload_byte)):
                     msg += chr(payload_byte[x])
-                return_data += "[" + msg + "]"
+                return_data += "[{'msgID':'" + msg_id_list[i] + "'}," + msg + "]"
                 if i < msg_count-1:
                     return_data += ","
             
@@ -239,14 +239,6 @@ def do_command(command, parameter_value, return_topic, set_tag=gateway_name):
 # - Create Random Private and Public Key
 # 
 # Next, it will act based on input command from MQTT input.
-# Command List :
-# - data : upload data to IOTA Tangle. (input: JSON data)
-# - tag : get list of msg_id from input index. (input : indexation name)
-# - msg_data : get full data of msg. (input : message id)
-# - msg_metada : get metadata of msg. (input : message id)
-# - payload : get payload of message. (input : message id)
-# - payload_valid : get payload of message that uploaded via 
-#           this gateway. (input: message_id)
 #=======================================================================
 if __name__ == "__main__":
     # Configure ECDSA
